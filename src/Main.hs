@@ -31,10 +31,10 @@ import Network.HTTP.Conduit         (parseUrl
 import Network.HTTP.Types.Status    (Status(..))
 import System.Environment           (getArgs)
 
-
 readLines :: FilePath -> IO [String]
 readLines = fmap lines . readFile
 
+crawl :: Manager -> String -> IO ()
 crawl manager url = do
   start <- getCurrentTime
   initReq <- parseUrl url
@@ -48,9 +48,12 @@ crawl manager url = do
         msg = (show status) ++ " from " ++ url ++ " in " ++ (show elapsed)
     lift $ putStrLn msg
 
-crawlConcurrently manager urls = do
-  mapM_ (mapConcurrently $ retry 3 . crawl manager) (chunksOf 100 urls)
+crawlConcurrently :: Manager -> [String] -> IO ()
+crawlConcurrently manager urls = mapM_ crawlChunk chunks
+  where chunks = chunksOf 100 urls
+        crawlChunk = mapConcurrently $ retry 3 . crawl manager
 
+main :: IO ()
 main = do
   filename:_ <- getArgs
   urls <- readLines filename
