@@ -1,0 +1,8 @@
+.ghci
+.cabal-sandbox/
+cabal.sandbox.config
+**/log/**
+!**/log/.save
+dist/
+/local/
+.shared-sandbox/
