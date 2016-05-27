@@ -19,6 +19,7 @@ import Control.Exception.Extra      (retry)
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Trans.Class    (lift)
 import Data.List.Split              (chunksOf)
+import Data.String.Conv
 import Data.Time                    (getCurrentTime
                                     ,diffUTCTime)
 import Network.HTTP.Conduit         (parseUrl
@@ -26,6 +27,7 @@ import Network.HTTP.Conduit         (parseUrl
                                     ,Request(..)
                                     ,Response(..)
                                     ,Manager
+                                    ,setQueryString
                                     ,tlsManagerSettings
                                     ,newManager)
 import Network.HTTP.Types.Status    (Status(..))
@@ -40,6 +42,22 @@ crawl manager url = do
   initReq <- parseUrl url
   let hdr = [("User-Agent", "Googlebot/2.1 (+http://www.google.com/bot.html)")]
       req = initReq { requestHeaders = hdr }
+  runResourceT $ do
+    resp <- http req manager
+    stop <- lift getCurrentTime
+    let elapsed = diffUTCTime stop start
+        status  = statusCode $ responseStatus resp
+        msg = (show status) ++ " from " ++ url ++ " in " ++ (show elapsed)
+    lift $ putStrLn msg
+
+recache :: Manager -> String -> IO ()
+recache manager url = do
+  start <- getCurrentTime
+  initReq <- parseUrl "http://api.prerender.io/recache"
+  let params = [("prerenderToker", Just "ZqGGqCmymhYXRRt46kWa")
+               ,("url", Just $ toS url)
+               ]
+      req = setQueryString params initReq
   runResourceT $ do
     resp <- http req manager
     stop <- lift getCurrentTime
