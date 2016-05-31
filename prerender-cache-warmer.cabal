@@ -20,15 +20,16 @@ executable prerender-cache-warmer
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.9
+                     , aeson >= 0.11 && < 0.12
+                     , async >= 2.0.1.5
+                     , extra >= 1.4.1
                      , http-conduit >= 2.1.8
                      , http-types >= 0.8.6
                      , resourcet >= 1.1.6
-                     , transformers >= 0.3.0.0
-                     , time >= 1.4.2
-                     , async >= 2.0.1.5
                      , split >= 0.2.2
                      , string-conv
-                     , extra >= 1.4.1
+                     , time >= 1.4.2
+                     , transformers >= 0.3.0.0
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -threaded

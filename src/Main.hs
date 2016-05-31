@@ -18,6 +18,7 @@ import Control.Concurrent.Async     (mapConcurrently)
 import Control.Exception.Extra      (retry)
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Trans.Class    (lift)
+import Data.Aeson
 import Data.List.Split              (chunksOf)
 import Data.String.Conv
 import Data.Time                    (getCurrentTime
@@ -25,6 +26,7 @@ import Data.Time                    (getCurrentTime
 import Network.HTTP.Conduit         (parseUrl
                                     ,http
                                     ,Request(..)
+                                    ,RequestBody(..)
                                     ,Response(..)
                                     ,Manager
                                     ,setQueryString
@@ -50,14 +52,19 @@ crawl manager url = do
         msg = (show status) ++ " from " ++ url ++ " in " ++ (show elapsed)
     lift $ putStrLn msg
 
+s :: String -> String
+s = id
+
 recache :: Manager -> String -> IO ()
 recache manager url = do
   start <- getCurrentTime
   initReq <- parseUrl "http://api.prerender.io/recache"
-  let params = [("prerenderToker", Just "ZqGGqCmymhYXRRt46kWa")
-               ,("url", Just $ toS url)
-               ]
-      req = setQueryString params initReq
+  let params = object [ "prerenderToken" .= s "ZqGGqCmymhYXRRt46kWa"
+                      , "url" .= url
+                      ]
+      req = initReq { method = "POST"
+                    , requestHeaders = [ ("Content-Type", "application/json") ]
+                    , requestBody = RequestBodyLBS (encode params) }
   runResourceT $ do
     resp <- http req manager
     stop <- lift getCurrentTime
@@ -66,15 +73,15 @@ recache manager url = do
         msg = (show status) ++ " from " ++ url ++ " in " ++ (show elapsed)
     lift $ putStrLn msg
 
-crawlConcurrently :: Manager -> [String] -> IO ()
-crawlConcurrently manager urls = mapM_ crawlChunk chunks
+crawlConcurrently :: (Manager -> String -> IO ()) -> Manager -> [String] -> IO ()
+crawlConcurrently f manager urls = mapM_ crawlChunk chunks
   where chunks = chunksOf 100 urls
-        crawlChunk = mapConcurrently $ retry 3 . crawl manager
+        crawlChunk = mapConcurrently $ retry 3 . f manager
 
 main :: IO ()
 main = do
   filename:_ <- getArgs
   urls <- readLines filename
   manager <- newManager tlsManagerSettings
-  crawlConcurrently manager urls
+  crawlConcurrently recache manager urls
 
