@@ -15,11 +15,13 @@ module Main where
 
 ------------------------------------------------------------------------------
 import Control.Concurrent.Async     (mapConcurrently)
-import Control.Exception.Extra      (retry)
+import Control.Exception
 import Control.Monad.Trans.Resource (runResourceT)
 import Control.Monad.Trans.Class    (lift)
+import Control.Retry
 import Data.Aeson
 import Data.List.Split              (chunksOf)
+import Data.Monoid
 import Data.String.Conv
 import Data.Time                    (getCurrentTime
                                     ,diffUTCTime)
@@ -75,13 +77,22 @@ recache manager url = do
 
 crawlConcurrently :: (Manager -> String -> IO ()) -> Manager -> [String] -> IO ()
 crawlConcurrently f manager urls = mapM_ crawlChunk chunks
-  where chunks = chunksOf 100 urls
-        crawlChunk = mapConcurrently $ retry 3 . f manager
+  where
+    chunks = chunksOf 100 urls
+    crawlChunk = mapConcurrently go
+    go arg = do
+        handle (logFailure arg) $
+          recoverAll (exponentialBackoff 1000000 <> limitRetries 3) $ \_ -> f manager arg
+
+logFailure :: String -> SomeException -> IO ()
+logFailure arg e = do
+    appendFile "failed-urls" (arg ++ "\n")
+    print e
 
 main :: IO ()
 main = do
   filename:_ <- getArgs
   urls <- readLines filename
   manager <- newManager tlsManagerSettings
-  crawlConcurrently recache manager urls
+  crawlConcurrently crawl manager urls
 

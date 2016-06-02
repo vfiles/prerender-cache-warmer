@@ -6,7 +6,7 @@ version:             0.1.0.0
 -- synopsis:            
 -- description:         
 -- license:             
-license-file:        LICENSE
+-- license-file:        LICENSE
 author:              Evan Drewry
 maintainer:          evan@vfiles.com
 -- copyright:           
@@ -22,10 +22,10 @@ executable prerender-cache-warmer
   build-depends:       base >=4.7 && <4.9
                      , aeson >= 0.11 && < 0.12
                      , async >= 2.0.1.5
-                     , extra >= 1.4.1
                      , http-conduit >= 2.1.8
                      , http-types >= 0.8.6
                      , resourcet >= 1.1.6
+                     , retry >= 0.7 && < 0.8
                      , split >= 0.2.2
                      , string-conv
                      , time >= 1.4.2
