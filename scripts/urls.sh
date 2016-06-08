@@ -81,7 +81,7 @@ if [[ -e $HOME/.pgpass ]]; then
     fetch "COPY (SELECT username FROM people) TO STDOUT WITH CSV;" /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1}' /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/vfiles"}' /tmp/userIds.csv \
-      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/mentions"}' /tmp/userIds.csv \
+      #&& awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/mentions"}' /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/likes"}' /tmp/userIds.csv #\
       #&& awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/followers"}' /tmp/userIds.csv \
       #&& awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/followees"}' /tmp/userIds.csv
