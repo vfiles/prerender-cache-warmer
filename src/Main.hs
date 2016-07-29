@@ -57,8 +57,13 @@ crawl manager url = do
 s :: String -> String
 s = id
 
-recache :: Manager -> String -> IO ()
-recache manager url = do
+recache :: String -> IO ()
+recache url = do
+  manager <- newManager tlsManagerSettings
+  recache' manager url
+
+recache' :: Manager -> String -> IO ()
+recache' manager url = do
   start <- getCurrentTime
   initReq <- parseUrl "http://api.prerender.io/recache"
   let params = object [ "prerenderToken" .= s "ZqGGqCmymhYXRRt46kWa"
@@ -94,5 +99,11 @@ main = do
   filename:_ <- getArgs
   urls <- readLines filename
   manager <- newManager tlsManagerSettings
-  crawlConcurrently crawl manager urls
+
+  -- To prewarm the prerender cache, call the crawl function here.
+  -- To recache, use recache'.  Prerender limits us to a few recache calls per
+  -- minute, so if you have to update large numbers of URLs, you need to email
+  -- prerender to get them to clear the cache and then use prewarm instead of
+  -- recache.
+  crawlConcurrently recache' manager urls
 
