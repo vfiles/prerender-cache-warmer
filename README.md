@@ -9,6 +9,7 @@ To use this:
 4. Do that with all the generated url files
 
 Other notes:
+
 1. Probably ok (better?) to run this on aws
 2. Prerender has limits on the number of recaches we can do per min. To avoid this (esp. when we need to recahce the entire site), 
 we first have to email them (support@prerender.io) and ask them to clear our cache. Then, change the first argument to `crawlConcurrently` from
