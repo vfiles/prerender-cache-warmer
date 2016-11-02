@@ -47,20 +47,10 @@ if [[ -e $HOME/.pgpass ]]; then
       fi
     }
 
-
-    # TODO: need to get logo, make it into media, and add to vfile as cover
-    # Also get description and add as vfile caption
-    fetch "COPY (
-            SELECT slug FROM tv_shows
-          ) TO STDOUT WITH CSV;" /tmp/tvSlugs.csv \
-      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/tv/" $1}' /tmp/tvSlugs.csv
-
-
-    fetch "COPY (
-            SELECT slug FROM contests
-          ) TO STDOUT WITH CSV;" /tmp/contestSlugs.csv \
-      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/contests/" $1}' /tmp/contestSlugs.csv
-
+    touch /tmp/contestSlugs.csv
+    echo "https://www.vfiles.com/runway" > /tmp/contestSlugs.csv
+    echo "https://www.vfiles.com/womb" >> /tmp/contestSlugs.csv
+    echo "https://www.vfiles.com/loud" >> /tmp/contestSlugs.csv
 
     fetch "COPY (
             SELECT   p.username
