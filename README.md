@@ -1,12 +1,12 @@
 To use this:
 
 1. run the url generating script by first tunneling to the prod db and then running
-`./scripts/urls.sh
+`./scripts/urls.sh > /tmp/urls.csv`
+2. ssh into build machine, cd into prerender-cache-warmer
+3. copy over your urls file, something like: `scp -i ~/.ssh/refresh.pem -P52222 /tmp/urls.csv ubuntu@localhost:/tmp/urls.csv`
 2. run `stack build`
 3. then run 
-  `$(stack path --local-install-root)/bin/prerender-cache-warmer FILENAME`
-  where FILENAME is one of the url files generated in step 1 (TODO: make this better)
-4. Do that with all the generated url files
+  `$(stack path --local-install-root)/bin/prerender-cache-warmer /tmp/urls.csv`
 
 Other notes:
 
