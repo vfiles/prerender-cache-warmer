@@ -1,7 +1,7 @@
 To use this:
 
 1. run the url generating script by first tunneling to the prod db and then running
-`./scripts/urls.sh > /tmp/urls.csv`
+`./scripts/urls.sh > /tmp/urls.csv` (make sure all the urls are still relevant first)
 2. ssh into build machine, cd into prerender-cache-warmer
 3. copy over your urls file, something like: `scp -i ~/.ssh/refresh.pem -P52222 /tmp/urls.csv ubuntu@localhost:/tmp/urls.csv`
 2. run `stack build`
