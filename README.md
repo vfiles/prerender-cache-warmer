@@ -10,7 +10,7 @@ To use this:
 
 Other notes:
 
-1. Probably ok (better?) to run this on aws
+1. run this on aws (in a tmux window)
 2. Prerender has limits on the number of recaches we can do per min. To avoid this (esp. when we need to recahce the entire site), 
 we first have to email them (support@prerender.io) and ask them to clear our cache. Then, change the first argument to `crawlConcurrently` from
 `recache'` to `crawl`. This simulates a googlebot crawling the site, which causes the pages to be cached automatically (without limits), but only if the cache is empty. 
