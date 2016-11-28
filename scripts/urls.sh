@@ -52,14 +52,21 @@ if [[ -e $HOME/.pgpass ]]; then
     echo "https://www.vfiles.com/womb" >> /tmp/contestSlugs.csv
     echo "https://www.vfiles.com/loud" >> /tmp/contestSlugs.csv
 
+    fetch "COPY (SELECT id FROM vfiles ORDER BY id DESC) TO STDOUT WITH CSV;" /tmp/vfileIds.csv \
+      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/vfiles/" $1}' /tmp/vfileIds.csv
+
+    fetch "COPY (SELECT media_id, vfile_id FROM media_vfiles ORDER BY created_at DESC) TO STDOUT WITH CSV;" /tmp/mediaVfileIds.csv \
+      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/vfiles/" $2 "/media/" $1}' /tmp/mediaVfileIds.csv
+
+    fetch "COPY (SELECT id FROM media ORDER BY id DESC) TO STDOUT WITH CSV;" /tmp/mediaIds.csv \
+      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/media/" $1}' /tmp/mediaIds.csv
+
     fetch "COPY (
             SELECT   p.username
               FROM vendors v
               JOIN people p ON p.id = v.person_id
           ) TO STDOUT WITH CSV;" /tmp/vendorSlugs.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/shop"}' /tmp/vendorSlugs.csv
-
-
 
     fetch "COPY (
             SELECT   slug
@@ -68,16 +75,10 @@ if [[ -e $HOME/.pgpass ]]; then
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/shop/collections/" $1 "/all"}' /tmp/shopCollectionSlugs.csv
 
 
-    fetch "COPY (SELECT username FROM people) TO STDOUT WITH CSV;" /tmp/userIds.csv \
+    fetch "COPY (SELECT username FROM people ORDER BY id DESC) TO STDOUT WITH CSV;" /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1}' /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/vfiles"}' /tmp/userIds.csv \
       && awk -F "\"*,\"*" '{print "https://www.vfiles.com/profile/" $1 "/likes"}' /tmp/userIds.csv
-
-    fetch "COPY (SELECT id FROM vfiles) TO STDOUT WITH CSV;" /tmp/vfileIds.csv \
-      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/vfiles/" $1}' /tmp/vfileIds.csv
-
-    fetch "COPY (SELECT media_id, vfile_id FROM media_vfiles) TO STDOUT WITH CSV;" /tmp/mediaVfileIds.csv \
-      && awk -F "\"*,\"*" '{print "https://www.vfiles.com/vfiles/" $2 "/media/" $1}' /tmp/mediaVfileIds.csv
 
 
   fi
